@@ -1,0 +1,67 @@
+version: "3.1"
+
+services:
+  bot:
+    build: ./bot
+    restart: on-failure
+    ports:
+      - 5000:5000
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TOKEN=1415048755:AAFiONiNQ3KdEcgSLDyS5SEyTjPWYW-BxOE
+      - ADMIN_ID=14881488
+      - DB_API_PORT=8000
+      - BCS_API_URL=https://bcschain.info/api
+      - DB_API_URL=http://db_api
+      - EMAIL=block.tech@mail.ru
+      - PASSWORD=qawsedqwerty
+      - NODE_URL=https://195.201.121.135:3669/
+      - NODE_PASSWORD=PASSWORD
+      - NODE_USER=USER
+    networks:
+      - tg_bot_net
+    depends_on:
+      - db_api
+    command: python app.py
+
+  db_api:
+    build: ./db_api
+    restart: on-failure
+    ports:
+      - 8000:8000
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PG_HOST=db
+      - PG_USER=docker
+      - PG_PASS=docker
+      - PG_NAME=docker
+      - PG_PORT=5432
+      - DB_API_PORT=8000
+    networks:
+      - tg_bot_net
+    depends_on:
+      - db
+    command: bash -c "python manage.py db migrate && python manage.py db upgrade && python db_api.py"
+
+  db:
+    image: postgres
+    restart: on-failure
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=docker
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tg_bot_net
+
+
+networks:
+  tg_bot_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    name: tg_bot_data

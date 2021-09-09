@@ -1,0 +1,8 @@
+.env
+.idea
+.vscode
+venv
+__pycache__
+db_api
+/bot
+.DS_Store
